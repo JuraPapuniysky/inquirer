@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Question;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -12,6 +13,7 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use yii\web\NotFoundHttpException;
 
 /**
  * Site controller
@@ -72,7 +74,13 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        if (($questions = Question::findAll(['status' => 1])) !== null){
+            return $this->render('index', [
+               'questions' => $questions,
+            ]);
+        } else {
+            throw new NotFoundHttpException();
+        }
     }
 
     /**
