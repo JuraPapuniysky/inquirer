@@ -1,6 +1,8 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Answer;
+use common\models\Form;
 use common\models\Question;
 use Yii;
 use yii\base\InvalidParamException;
@@ -68,19 +70,44 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays homepage.
-     *
-     * @return mixed
+     * @return string
+     * @throws NotFoundHttpException
      */
     public function actionIndex()
     {
-        if (($questions = Question::findAll(['status' => 1])) !== null){
-            return $this->render('index', [
-               'questions' => $questions,
-            ]);
+        return $this->render('index', [
+           'questions' => $this->findActiveQuestions(),
+        ]);
+    }
+
+    public function actionForm()
+    {
+        if (!Yii::$app->user->isGuest) {
+            $userId = Yii::$app->user->id;
+            $questions = $this->findActiveQuestions();
+            $form = new Form();
+            $form->user_id = $userId;
+            $form->user_ip = Yii::$app->request->userIP;
+            if ($form->save()) {
+                foreach ($questions as $question) {
+                    $answer = new Answer();
+                    $answer->user_id = $userId;
+                    $answer->form_id = $form->id;
+                    $answer->question_id = $question->id;
+                    $answer->description = Yii::$app->request->post('text_' . $question->id);
+                    $answer->range = Yii::$app->request->post('range_' . $question->id);
+                    $answer->save();
+                }
+            }
+            return $this->goHome();
         } else {
-            throw new NotFoundHttpException();
+            return $this->redirect(['site/login']);
         }
+    }
+
+    public function actionResult()
+    {
+
     }
 
     /**
@@ -217,5 +244,18 @@ class SiteController extends Controller
         return $this->render('resetPassword', [
             'model' => $model,
         ]);
+    }
+
+    /**
+     * @return static[]
+     * @throws NotFoundHttpException
+     */
+    protected function findActiveQuestions()
+    {
+        if (($model = Question::findAll(['status' => 1])) !== null){
+            return $model;
+        } else {
+            throw new NotFoundHttpException('Questions not found!');
+        }
     }
 }

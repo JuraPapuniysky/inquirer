@@ -15,6 +15,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $description
  * @property integer $created_at
  * @property integer $updated_at
+ * @property integer $range
  *
  * @property Form $form
  * @property Question $question
@@ -46,7 +47,7 @@ class Answer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'form_id', 'question_id', 'created_at', 'updated_at'], 'integer'],
+            [['user_id', 'form_id', 'question_id', 'created_at', 'updated_at', 'range'], 'integer'],
             [['description'], 'string', 'max' => 255],
             [['form_id'], 'exist', 'skipOnError' => true, 'targetClass' => Form::className(), 'targetAttribute' => ['form_id' => 'id']],
             [['question_id'], 'exist', 'skipOnError' => true, 'targetClass' => Question::className(), 'targetAttribute' => ['question_id' => 'id']],
@@ -63,6 +64,7 @@ class Answer extends \yii\db\ActiveRecord
             'id' => 'ID',
             'user_id' => 'User ID',
             'form_id' => 'Form ID',
+            'range' => 'Range',
             'question_id' => 'Question ID',
             'description' => 'Description',
             'created_at' => 'Created At',
