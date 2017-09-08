@@ -4,6 +4,7 @@ namespace frontend\controllers;
 use common\models\Answer;
 use common\models\Form;
 use common\models\Question;
+use common\models\User;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -101,13 +102,26 @@ class SiteController extends Controller
             }
             return $this->goHome();
         } else {
-            return $this->redirect(['site/login']);
+            return $this->redirect(['site/results']);
         }
     }
 
-    public function actionResult()
+    public function actionResults()
     {
+        if (!Yii::$app->user->isGuest) {
+            $forms = Form::find();
+            if (User::findIdentity(Yii::$app->user->id)->isAdmin()) {
+                $forms = $forms->all();
+            } else {
+                $forms = $forms->where(['user_id' => Yii::$app->user->id]);
+            }
 
+            return $this->render('results', [
+                'forms' => $forms,
+            ]);
+        } else {
+            return $this->redirect(['site/login']);
+        }
     }
 
     /**
