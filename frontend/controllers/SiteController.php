@@ -100,9 +100,9 @@ class SiteController extends Controller
                     $answer->save();
                 }
             }
-            return $this->goHome();
-        } else {
             return $this->redirect(['site/results']);
+        } else {
+            return $this->redirect(['site/login']);
         }
     }
 
@@ -113,7 +113,7 @@ class SiteController extends Controller
             if (User::findIdentity(Yii::$app->user->id)->isAdmin()) {
                 $forms = $forms->all();
             } else {
-                $forms = $forms->where(['user_id' => Yii::$app->user->id]);
+                $forms = $forms->where(['user_id' => Yii::$app->user->id])->all();
             }
 
             return $this->render('results', [
